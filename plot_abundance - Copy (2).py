@@ -14,7 +14,7 @@ import seaborn as sns
 from scipy.stats import ranksums, fisher_exact
 
 filenames = ['Abundance_sum_D003924.csv', 'Abundance_sum_D006262.csv']
-pheno_list = ['T2D', 'Healthy']
+pheno_list = ['T2DM', 'Healthy']
 result = []
 for fn, pheno in zip(filenames, pheno_list):
     df = pd.read_csv(fn, index_col=0)
@@ -24,7 +24,7 @@ result = pd.concat(result)
 #result = result[result['host age in years'] >= 40]
 
 #Clrs = {'T2D': ['royalblue', 'lightskyblue'], 'Healthy': ['darkorange', 'wheat']}
-Clrs = {'T2D': ['cornflowerblue', 'lightskyblue'], 'Healthy': ['salmon', 'wheat']}
+Clrs = {'Healthy': ['cornflowerblue', 'lightskyblue'], 'T2DM': ['salmon', 'wheat']}
 for pheno in pheno_list:
     FIG = plt.figure(figsize=(2.5, 2.5), dpi=300)
     labels = ['Mah+', 'Mah-']
@@ -38,8 +38,8 @@ for pheno in pheno_list:
     #FIG.savefig('Pie_%s.pdf'%pheno, transparent=True)
     FIG.savefig('Pie_%s.png'%pheno, transparent=True)
 
-k = result[(result['Phenotype'] == 'T2D') & (result['Found'] == True)].shape[0]
-K = result[result['Phenotype'] == 'T2D'].shape[0]
+k = result[(result['Phenotype'] == 'T2DM') & (result['Found'] == True)].shape[0]
+K = result[result['Phenotype'] == 'T2DM'].shape[0]
 n = result[result['Found'] == True].shape[0]
 N = result.shape[0]
 print(fisher_exact([[k, K], [n, N]]))
@@ -67,32 +67,32 @@ FIG.savefig('Histogram1_%s.pdf'%('_'.join(pheno_list)), transparent=True)
 FIG, axes = plt.subplots(2, 1, figsize=(6, 5), dpi=300, \
                          gridspec_kw={'height_ratios': [1, 3]})
 for pheno in pheno_list:
-    sns.histplot(res_found.loc[res_found['Phenotype'] == pheno, 'AbundanceSum'], \
+    sns.histplot(result.loc[result['Phenotype'] == pheno, 'AbundanceSum'], \
                  stat='probability', bins=np.arange(0, 18, 0.5), element='step', \
                  fill=False, color=Clrs[pheno][0], label=pheno, ax=axes[0])
-axes[0].set_ylim(0.1, 0.55)
+axes[0].set_ylim(0.4, 0.75)
 axes[0].set_xlim(0, 18)
 axes[0].set_ylabel(None)
 axes[0].set_xlabel(None)
 axes[0].spines.bottom.set_visible(False)
 axes[0].set_xticks([])
-axes[0].set_yticks(np.arange(0.15, 0.5, 0.2))
+#axes[0].set_yticks(np.arange(0.15, 0.5, 0.2))
 axes[0].legend()
 for pheno in pheno_list:
-    sns.histplot(res_found.loc[res_found['Phenotype'] == pheno, 'AbundanceSum'], \
+    sns.histplot(result.loc[result['Phenotype'] == pheno, 'AbundanceSum'], \
                  stat='probability', bins=np.arange(0, 18, 0.5), element='step', \
                  fill=False, color=Clrs[pheno][0], label=pheno, ax=axes[1])
 axes[1].set_ylim(0, 0.1)
 axes[1].set_xlim(0, 18)
-axes[1].set_ylabel(None)
+axes[1].set_ylabel('Apg+ proportion')
 axes[1].spines.top.set_visible(False)
-axes[1].set_xlabel('Abundance %')
+axes[1].set_xlabel('Apg abundance (%)')
 plt.tight_layout()
 #FIG.savefig('Histogram1_%s.pdf'%('_'.join(pheno_list)), transparent=True)
 FIG.savefig('Histogram1_%s.png'%('_'.join(pheno_list)), transparent=True)
 
 
-A = res_found.loc[res_found['Phenotype'] == 'T2D', 'AbundanceSum']
+A = res_found.loc[res_found['Phenotype'] == 'T2DM', 'AbundanceSum']
 B = res_found.loc[res_found['Phenotype'] == 'Healthy', 'AbundanceSum']
 print(ranksums(A, B))
 
